@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>قائمه المراقبين</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: rgba(15, 15, 15, 0.9);
+            color: #ff4444;
+            padding: 8px;
+            border-radius: 8px;
+            width: 250px;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 9999;
+            font-size: 12px;
+            transition: opacity 0.3s ease;
+            opacity: 1;
+            border: 1px solid rgba(220, 50, 50, 0.3);
+            box-shadow: 0 0 10px rgba(180, 40, 40, 0.3);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            padding: 4px;
+            background: rgba(40, 10, 10, 0.6);
+            border-radius: 6px;
+            border: 1px solid rgba(220, 50, 50, 0.2);
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            filter: brightness(1.5);
+        }
+
+        .title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #ff4444;
+            text-shadow: 0 0 5px rgba(220, 50, 50, 0.6);
+        }
+
+        .monitor {
+            padding: 4px;
+            border-bottom: 1px solid rgba(220, 50, 50, 0.2);
+            margin: 2px 0;
+        }
+
+        .status {
+            font-size: 10px;
+            color: #ff6666;
+            line-height: 1.2;
+        }
+
+        .monitor:last-child {
+            border-bottom: none;
+        }
+
+        body:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+        <span class="title">Spectate list</span>
+    </div>
+    <div id="monitor-list"></div>
+
+    <script>
+        window.addEventListener("message", function (event) {
+            const data = event.data;
+
+            if (data.action === "updateMonitors") {
+                const list = document.getElementById("monitor-list");
+
+                if (data.monitors.length > 0) {
+                    list.innerHTML = "";
+                    data.monitors.forEach(function (player) {
+                        const div = document.createElement("div");
+                        div.className = "monitor";
+
+                        // ✅ بناء النص حسب الحالة
+                        let statusText = [];
+                        if (player.status.noclip) statusText.push("NoClip");
+                        if (player.status.flying) statusText.push("يطير");
+                        if (player.status.spectating) statusText.push("يراقب");
+                        if (player.status.invisible) statusText.push("مخفي");
+                        if (player.status.freecam) statusText.push("Freecam");
+                        if (player.status.noLos) statusText.push("لا خط رؤية");
+                        if (player.status.nearby) statusText.push("قريب (" + player.status.distance + "م)");
+
+                        let displayText = `[${player.id}] ${player.name}`;
+                        if (statusText.length > 0) {
+                            displayText += "<br><span class='status'>" + statusText.join(", ") + "</span>";
+                        }
+
+                        div.innerHTML = displayText;
+                        list.appendChild(div);
+                    });
+                } else {
+                    list.innerHTML = "";
+                }
+            }
+        });
+    </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"5cb931a51b2c4943b77b038e08e9dde2","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
